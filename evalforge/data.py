@@ -1,11 +1,18 @@
 """Load and validate retrieval evaluation datasets."""
 import json,os
 from pathlib import Path
+
 DEFAULT_DATASET=Path(__file__).with_name("sample_data.json")
+
 def load_dataset(path=None):
     source=Path(path or os.getenv("EVALFORGE_DATASET",DEFAULT_DATASET))
-    with source.open(encoding="utf-8") as f:data=json.load(f)
-    validate_dataset(data);return data
+    # utf-8-sig accepts ordinary UTF-8 and files saved with a UTF-8 BOM
+    # (for example, by Windows PowerShell's Set-Content).
+    with source.open(encoding="utf-8-sig") as f:
+        data=json.load(f)
+    validate_dataset(data)
+    return data
+
 def validate_dataset(data):
     if not isinstance(data,dict):raise ValueError("Dataset must be a JSON object.")
     docs,queries=data.get("documents"),data.get("queries")
