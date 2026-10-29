@@ -10,7 +10,7 @@ A reproducible evaluation workbench for retrieval-augmented generation (RAG). Co
 - Labelled sample corpus, per-query inspection, JSON report export.
 - Upload your own TXT/Markdown document and run a retrieval experiment against automatically created chunks.
 - FastAPI service, responsive dashboard, CLI benchmark, tests and CI.
-- Optional Ollama LLM-as-a-judge for groundedness, relevance, and correctness.
+- Optional Groq-hosted LLM-as-a-judge for groundedness, relevance, and correctness.
 
 ## Quick start
 Python 3.10+ recommended.
@@ -38,7 +38,7 @@ For neural embeddings, install Sentence Transformers with pip install sentence-t
 - POST /api/experiment/retrieve — query the currently uploaded custom document
 - POST /api/benchmark — run labelled benchmark
 - GET /api/benchmark/latest — latest in-memory report
-- POST /api/judge — optional Ollama evaluation
+- POST /api/judge — optional Groq LLM evaluation
 
 Example retrieval JSON: {"query":"How do I evaluate RAG retrieval quality?","retriever":"hybrid","k":5}
 
@@ -61,10 +61,10 @@ A local exploratory run on 29 October 2026 used an expanded corpus of 43 documen
 Use the **Your document** section in the dashboard to upload a `.txt` or `.md` file (maximum 2 MB), then ask questions against its chunks using BM25, dense, or hybrid retrieval. The chunker preserves detected headings and avoids merging chunks across section boundaries. Short question-only chunks are down-ranked for answer-style retrieval so a repeated question in an appendix is less likely to outrank an explanatory passage. The upload is held in the running server's memory and is replaced when another document is uploaded; restarting the service clears it. PDF/DOCX upload is not supported yet, so export or copy the document text to TXT/Markdown first. This mode shows retrieved chunks and latency. Meaningful Recall@k, Precision@k, MRR@k, and NDCG@k benchmarking requires labelled queries and relevant document IDs; the app does not fabricate labels for personal documents.
 
 ## Optional LLM judge
-Start Ollama and pull a model such as llama3.2. Configure OLLAMA_BASE_URL (default http://localhost:11434) and OLLAMA_MODEL (default llama3.2), then call POST /api/judge. Scores are model estimates and need human review.
+Configure GROQ_API_KEY in the server environment. GROQ_MODEL is optional and defaults to llama-3.3-70b-versatile. The judge calls Groq's hosted chat-completions API, so Ollama does not need to run on the Render service. Then call POST /api/judge. Scores are model estimates and need human review.
 
 ## Configuration
-EVALFORGE_DATASET optionally points to a custom dataset JSON. EVALFORGE_EMBEDDING_MODEL selects the embedding model. OLLAMA_BASE_URL and OLLAMA_MODEL configure the local judge.
+EVALFORGE_DATASET optionally points to a custom dataset JSON. EVALFORGE_EMBEDDING_MODEL selects the embedding model. GROQ_API_KEY authenticates the hosted judge; GROQ_MODEL selects the model.
 
 ## Development
     pip install pytest httpx
@@ -73,6 +73,6 @@ EVALFORGE_DATASET optionally points to a custom dataset JSON. EVALFORGE_EMBEDDIN
 GitHub Actions runs tests on pushes and pull requests.
 
 ## Limitations
-Sample data is small; TF-IDF fallback is not a neural embedding model; latest benchmark history is in memory unless exported; the judge requires Ollama. Production use should add dataset versioning, persistent experiment storage, access control, and token/cost accounting.
+Sample data is small; TF-IDF fallback is not a neural embedding model; latest benchmark history is in memory unless exported; the optional judge requires a valid Groq API key and available model. Production use should add dataset versioning, persistent experiment storage, access control, and token/cost accounting.
 
 Maintainer: https://github.com/SIDMINUL
