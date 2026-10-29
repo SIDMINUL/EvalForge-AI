@@ -13,7 +13,7 @@ async function req(url,opts={}) {
     try { data = JSON.parse(body); }
     catch { throw Error("The API returned invalid JSON (HTTP " + r.status + "). Please retry; if this continues, check the deployment logs."); }
   } else {
-    const preview = body.replace(/\\s+/g, " ").slice(0, 180);
+    const preview = body.replace(/\s+/g, " ").slice(0, 180);
     throw Error("Expected JSON from " + url + " but received " + (contentType || "an unknown content type") + " (HTTP " + r.status + "). " + (preview ? "Response: " + preview : "The response was empty."));
   }
   if (!r.ok) throw Error(data.detail || data.message || ("Request failed (HTTP " + r.status + ")"));
