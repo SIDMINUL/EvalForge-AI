@@ -55,3 +55,33 @@ def test_question_bank_chunks_are_downranked():
     ]
     rows = BM25Retriever(docs).retrieve("What does Luffy associate with becoming King of the Pirates?", 2)
     assert rows[0]["id"] == "answer"
+
+def test_custom_chunking_removes_retrieval_metadata_and_preserves_entity_coverage():
+    from api import chunk_document
+    text = """SECTION 06: RORONOA ZORO AND DISCIPLINE
+
+Zoro is a swordsman who values discipline, endurance, and loyalty to Luffy.
+
+Key ideas
+- Main topic: Zoro and discipline.
+- Analytical lens: connect choices to emotional context.
+- Retrieval cue: ask a paraphrased question.
+
+SECTION 09: SANJI, FOOD, AND CARE
+
+Sanji is the crew's cook and a capable fighter. He expresses care by feeding his friends.
+
+Key ideas
+- Main topic: Sanji and care.
+- Analytical lens: connect choices to emotional context.
+- Retrieval cue: ask a paraphrased question.
+"""
+    chunks = chunk_document("characters.txt", text)
+    assert chunks
+    assert all("Key ideas" not in item["text"] for item in chunks)
+    assert all("Retrieval cue" not in item["text"] for item in chunks)
+
+    rows = BM25Retriever(chunks).retrieve("Who is Sanji and Zoro?", 2)
+    combined = " ".join(row["text"].lower() for row in rows)
+    assert "sanji" in combined
+    assert "zoro" in combined
