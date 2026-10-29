@@ -55,28 +55,64 @@ def dataset():
         raise HTTPException(status_code=500, detail="Could not load dataset: " + str(exc)) from exc
 
 
-def chunk_document(filename: str, content: str, chunk_size: int = 1100):
-    """Split a user-provided text document into stable, inspectable chunks."""
-    text = content.replace("\r\n", "\n").strip()
+def chunk_document(filename: str, content: str, chunk_size: int = 850, overlap: int = 100):
+    """Create section-aware chunks; never merge text across detected headings."""
+    text = content.replace("\r\n", "\n").replace("\r", "\n").strip()
     if not text:
         raise ValueError("The uploaded document is empty.")
-    paragraphs = [re.sub(r"\s+", " ", p).strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
-    chunks, current = [], ""
-    for paragraph in paragraphs or [text]:
-        while len(paragraph) > chunk_size:
-            if current:
-                chunks.append(current)
-                current = ""
-            chunks.append(paragraph[:chunk_size])
-            paragraph = paragraph[chunk_size:]
-        if current and len(current) + len(paragraph) + 1 > chunk_size:
-            chunks.append(current)
-            current = paragraph
-        else:
-            current = (current + " " + paragraph).strip()
+
+    heading_re = re.compile(
+        r"^(?:#{1,6}\s+.+|SECTION\s+\d+\s*:.+|APPENDIX\s+[A-Z]\s*:.+|"
+        r"[A-Z][A-Z0-9 ,:'’()—–-]{4,90})$",
+        re.IGNORECASE if False else 0,
+    )
+    sections, current = [], []
+    for raw_line in text.split("\n"):
+        line = raw_line.strip()
+        is_heading = bool(line and heading_re.match(line))
+        if is_heading and current:
+            sections.append("\n".join(current).strip())
+            current = []
+        if line:
+            current.append(line)
+        elif current and current[-1] != "":
+            current.append("")
     if current:
-        chunks.append(current)
-    return [{"id": f"custom-{i + 1}", "text": part, "source": filename} for i, part in enumerate(chunks)]
+        sections.append("\n".join(current).strip())
+    if not sections:
+        sections = [text]
+
+    chunks = []
+    for section in sections:
+        paragraphs = [re.sub(r"\s+", " ", p).strip()
+                      for p in re.split(r"\n\s*\n", section) if p.strip()]
+        current_chunk = ""
+        for paragraph in paragraphs or [section]:
+            if len(paragraph) > chunk_size:
+                if current_chunk:
+                    chunks.append(current_chunk)
+                    current_chunk = ""
+                start = 0
+                while start < len(paragraph):
+                    end = min(len(paragraph), start + chunk_size)
+                    piece = paragraph[start:end].strip()
+                    if piece:
+                        chunks.append(piece)
+                    if end >= len(paragraph):
+                        break
+                    start = max(start + 1, end - overlap)
+                continue
+            candidate = (current_chunk + "\n\n" + paragraph).strip() if current_chunk else paragraph
+            if current_chunk and len(candidate) > chunk_size:
+                chunks.append(current_chunk)
+                current_chunk = paragraph
+            else:
+                current_chunk = candidate
+        if current_chunk:
+            chunks.append(current_chunk)
+
+    return [{"id": f"custom-{i + 1}", "text": part, "source": filename}
+            for i, part in enumerate(chunks) if part]
 
 
 @app.get("/", include_in_schema=False)
