@@ -29,3 +29,20 @@ def test_benchmark_api():
     r=client.post("/api/benchmark",json={"k":3});assert r.status_code==200
     assert {x["retriever"] for x in r.json()["retrievers"]}=={"bm25","dense","hybrid"}
     assert client.get("/api/benchmark/latest").status_code==200
+
+def test_custom_chunking_preserves_headings():
+    from api import chunk_document
+    text = "INTRODUCTION\n\nFirst section text about freedom.\n\nSECTION 02: HISTORY\n\nHistory contains a different topic."
+    chunks = chunk_document("sample.txt", text, chunk_size=100)
+    assert len(chunks) >= 2
+    assert any("INTRODUCTION" in d["text"] and "First section text" in d["text"] for d in chunks)
+    assert not any("First section text" in d["text"] and "History contains" in d["text"] for d in chunks)
+
+def test_question_only_chunks_are_downranked():
+    from evalforge.retrieval import BM25Retriever
+    docs = [
+        {"id": "question", "text": "What does Luffy associate with becoming King of the Pirates?"},
+        {"id": "answer", "text": "Luffy associates becoming King of the Pirates with personal freedom, not ruling others."},
+    ]
+    rows = BM25Retriever(docs).retrieve("What does Luffy associate with becoming King of the Pirates?", 2)
+    assert rows[0]["id"] == "answer"
