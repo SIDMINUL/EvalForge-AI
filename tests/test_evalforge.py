@@ -100,7 +100,7 @@ def test_load_dataset_accepts_utf8_bom(tmp_path):
         "queries": [{"id": "q1", "query": "test", "relevant_doc_ids": ["d1"]}],
     }
     path = tmp_path / "dataset.json"
-    path.write_text("\\ufeff" + json.dumps(payload), encoding="utf-8")
+    path.write_text("\ufeff" + json.dumps(payload), encoding="utf-8")
     loaded = load_dataset(path)
     assert loaded["name"] == "BOM test"
     assert loaded["queries"][0]["relevant_doc_ids"] == ["d1"]
