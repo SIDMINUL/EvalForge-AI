@@ -8,6 +8,7 @@ A reproducible evaluation workbench for retrieval-augmented generation (RAG). Co
 - Hybrid retrieval using Reciprocal Rank Fusion (RRF).
 - Recall@k, Precision@k, MRR@k, NDCG@k, and latency metrics.
 - Labelled sample corpus, per-query inspection, JSON report export.
+- Upload your own TXT/Markdown document and run a retrieval experiment against automatically created chunks.
 - FastAPI service, responsive dashboard, CLI benchmark, tests and CI.
 - Optional Ollama LLM-as-a-judge for groundedness, relevance, and correctness.
 
@@ -32,7 +33,9 @@ For neural embeddings, install Sentence Transformers with pip install sentence-t
 ## API
 - GET /api/health — service and dataset status
 - GET /api/dataset — dataset examples and counts
-- POST /api/retrieve — retrieve with BM25, dense, or hybrid
+- POST /api/retrieve — retrieve with BM25, dense, or hybrid on the sample corpus
+- POST /api/experiment/document — upload TXT/Markdown content and split it into searchable chunks
+- POST /api/experiment/retrieve — query the currently uploaded custom document
 - POST /api/benchmark — run labelled benchmark
 - GET /api/benchmark/latest — latest in-memory report
 - POST /api/judge — optional Ollama evaluation
@@ -41,6 +44,9 @@ Example retrieval JSON: {"query":"How do I evaluate RAG retrieval quality?","ret
 
 ## Dataset and metrics
 evalforge/sample_data.json contains stable document IDs and relevant_doc_ids for each query. The sample is illustrative, not production-grade. Review labels and use held-out queries before making performance claims. Recall@k measures relevant documents found in top k; Precision@k is relevant results divided by k; MRR@k rewards the first relevant result's rank; NDCG@k rewards relevant results near the top. Latency depends on hardware, cache, and model warm-up.
+
+## Run an experiment on your own document
+Use the **Your document** section in the dashboard to upload a `.txt` or `.md` file (maximum 2 MB), then ask questions against its chunks using BM25, dense, or hybrid retrieval. The upload is held in the running server's memory and is replaced when another document is uploaded; restarting the service clears it. PDF/DOCX upload is not supported yet, so export or copy the document text to TXT/Markdown first. This mode shows retrieved chunks and latency. Meaningful Recall@k, Precision@k, MRR@k, and NDCG@k benchmarking requires labelled queries and relevant document IDs; the app does not fabricate labels for personal documents.
 
 ## Optional LLM judge
 Start Ollama and pull a model such as llama3.2. Configure OLLAMA_BASE_URL (default http://localhost:11434) and OLLAMA_MODEL (default llama3.2), then call POST /api/judge. Scores are model estimates and need human review.
