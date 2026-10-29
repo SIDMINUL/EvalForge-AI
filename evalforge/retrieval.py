@@ -2,11 +2,19 @@
 import math,os,re,time
 from collections import Counter
 TOKEN_RE=re.compile(r"[a-z0-9]+",re.I)
+QUESTION_START=re.compile(r"^(who|what|when|where|why|how|which|does|do|did|is|are|can|could|would|should)\\b",re.I)
 def tokenize(text):return TOKEN_RE.findall(text.lower())
 def _result(doc,score,name,engine=None):
     out={"id":str(doc["id"]),"text":doc["text"],"score":round(float(score),8),"retriever":name}
     if engine:out["engine"]=engine
     return out
+def _question_only_penalty(doc, score):
+    """Down-rank short question-only chunks for answer retrieval without hiding them."""
+    text=str(doc.get("text","")).strip()
+    words=tokenize(text)
+    if len(words) <= 45 and text.endswith("?") and QUESTION_START.match(text) and text.count("?") == 1:
+        return float(score)*0.2
+    return float(score)
 class BM25Retriever:
     name="bm25"
     def __init__(self,documents,k1=1.5,b=0.75):
@@ -24,6 +32,7 @@ class BM25Retriever:
                 df=self.df[term];idf=math.log(1+(n-df+0.5)/(df+0.5))
                 denom=freq+self.k1*(1-self.b+self.b*self.lengths[i]/max(1,self.avgdl))
                 score+=idf*freq*(self.k1+1)/denom
+            score=_question_only_penalty(doc,score)
             scored.append((i,score))
         scored.sort(key=lambda p:(-p[1],str(self.documents[p[0]]["id"])))
         return [_result(self.documents[i],s,self.name) for i,s in scored[:max(0,k)]]
@@ -48,6 +57,7 @@ class DenseRetriever:
         else:
             from sklearn.preprocessing import normalize
             scores=(normalize(self.vectorizer.transform([query]))@self.matrix.T).toarray()[0].tolist()
+        scores=[_question_only_penalty(doc,score) for doc,score in zip(self.documents,scores)]
         order=sorted(range(len(self.documents)),key=lambda i:(-float(scores[i]),str(self.documents[i]["id"])))
         return [_result(self.documents[i],scores[i],self.name,self.engine) for i in order[:max(0,k)]]
 class HybridRetriever:
@@ -61,6 +71,9 @@ class HybridRetriever:
         scores,docs={}, {str(d["id"]):d for d in self.documents}
         for ranking in rankings:
             for rank,item in enumerate(ranking,1):scores[item["id"]]=scores.get(item["id"],0)+1/(self.rrf_k+rank)
+        for doc_id in list(scores):
+            doc=docs[doc_id]
+            scores[doc_id]=_question_only_penalty(doc,scores[doc_id])
         ids=sorted(scores,key=lambda x:(-scores[x],x))
         return [_result(docs[i],scores[i],self.name,self.engine) for i in ids[:max(0,k)]]
 def build_retriever(name,documents):
