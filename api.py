@@ -61,6 +61,27 @@ def chunk_document(filename: str, content: str, chunk_size: int = 850, overlap: 
     if not text:
         raise ValueError("The uploaded document is empty.")
 
+    # Remove repeated instructional metadata that can otherwise become
+    # standalone chunks and compete with passages that answer user queries.
+    cleaned_lines = []
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        if lines[i].strip().casefold() == "key ideas":
+            i += 1
+            while i < len(lines) and re.match(
+                r"^\s*[-*]\s*(?:main topic|analytical lens|retrieval cue)\s*:",
+                lines[i],
+                re.I,
+            ):
+                i += 1
+            continue
+        cleaned_lines.append(lines[i])
+        i += 1
+    text = "\n".join(cleaned_lines).strip()
+    if not text:
+        raise ValueError("The uploaded document contains no retrievable text after cleanup.")
+
     heading_re = re.compile(
         r"^(?:#{1,6}\s+.+|SECTION\s+\d+\s*:.+|APPENDIX\s+[A-Z]\s*:.+|"
         r"[A-Z][A-Z0-9 ,:'’()—–-]{4,90})$",
