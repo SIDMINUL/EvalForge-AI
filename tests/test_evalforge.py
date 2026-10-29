@@ -7,10 +7,13 @@ client=TestClient(app)
 def test_dataset():
     d=load_dataset();validate_dataset(d);assert len(d["documents"])>=10 and len(d["queries"])>=10
 def test_metrics():
-    ids,rel=["a","x","b","y"],["a","b"]
-    assert recall_at_k(ids,rel,3)==0.5 and precision_at_k(ids,rel,3)==1/3
-    assert mrr_at_k(ids,rel,3)==1.0 and 0<ndcg_at_k(ids,rel,3)<=1
-    assert evaluate_ranking(ids,rel,3)["recall@3"]==0.5
+    ids, rel = ["a", "x", "b", "y"], ["a", "b"]
+
+    assert recall_at_k(ids, rel, 3) == 1.0
+    assert precision_at_k(ids, rel, 3) == 2 / 3
+    assert mrr_at_k(ids, rel, 3) == 1.0
+    assert 0 < ndcg_at_k(ids, rel, 3) <= 1
+    assert evaluate_ranking(ids, rel, 3)["recall@3"] == 1.0
 def test_bm25():
     docs=load_dataset()["documents"]
     assert BM25Retriever(docs).retrieve("BM25 term frequency inverse document frequency",3)[0]["id"]=="d2"
