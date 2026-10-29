@@ -11,3 +11,35 @@ $("#run-benchmark").addEventListener("click",run);$("#run-hero").addEventListene
 $("#retrieve-form").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;msg("#retrieval-message","Retrieving passages…");$("#retrieval-results").innerHTML="";try{const d=await req("/api/retrieve",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:$("#query-input").value,retriever:$("#retriever-select").value,k:Number($("#retrieve-k").value)})});msg("#retrieval-message",d.results.length+" results · "+fmt(d.latency_ms,2)+" ms · engine: "+d.engine,"success");$("#retrieval-results").innerHTML=d.results.map((r,i)=>"<article class='result-card'><div class='result-meta'><span>#"+(i+1)+" · "+esc(r.id)+"</span><b>score "+fmt(r.score,5)+"</b></div><p>"+esc(r.text)+"</p></article>").join("")}catch(err){msg("#retrieval-message",err.message,"error")}finally{b.disabled=false}});
 $("#judge-form").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;$("#judge-result").hidden=true;msg("#judge-message","Asking Ollama to evaluate the answer…");try{const contexts=$("#judge-context").value.split("\n").map(s=>s.trim()).filter(Boolean),d=await req("/api/judge",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:$("#judge-question").value,answer:$("#judge-answer").value,contexts,expected_answer:$("#judge-expected").value||null})});$("#judge-result").textContent=JSON.stringify(d,null,2);$("#judge-result").hidden=false;msg("#judge-message","Judge completed with "+d.model+". Review scores before relying on them.","success")}catch(err){msg("#judge-message",err.message,"error")}finally{b.disabled=false}});
 health();
+
+$("#custom-upload-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const b = e.submitter, file = $("#custom-file").files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { msg("#custom-upload-message", "File is larger than 2 MB. Choose a smaller TXT or Markdown file.", "error"); return; }
+  b.disabled = true;
+  $("#custom-chunks").innerHTML = "";
+  $("#custom-retrieval-results").innerHTML = "";
+  msg("#custom-upload-message", "Reading and chunking your document…");
+  try {
+    const content = await file.text();
+    const d = await req("/api/experiment/document", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({filename:file.name, content})});
+    msg("#custom-upload-message", "Loaded " + d.filename + " · " + d.document_count + " searchable chunks · " + d.total_characters + " characters.", "success");
+    $("#custom-chunks").innerHTML = "<article class='result-card'><div class='result-meta'><span>Document preview</span><b>" + d.document_count + " chunks</b></div><p>" + d.chunks.map(c => "<span class='result-id'>" + esc(c.id) + "</span> " + esc(c.preview)).join("<br><br>") + "</p></article>";
+    msg("#custom-retrieval-message", "Document ready. Ask a question to test retrieval.");
+  } catch (err) { msg("#custom-upload-message", err.message, "error"); }
+  finally { b.disabled = false; }
+});
+$("#custom-retrieve-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const b = e.submitter;
+  b.disabled = true;
+  $("#custom-retrieval-results").innerHTML = "";
+  msg("#custom-retrieval-message", "Searching your document chunks…");
+  try {
+    const d = await req("/api/experiment/retrieve", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({query:$("#custom-query").value, retriever:$("#custom-retriever").value, k:Number($("#custom-k").value)})});
+    msg("#custom-retrieval-message", d.results.length + " results from " + d.filename + " · " + fmt(d.latency_ms,2) + " ms · engine: " + d.engine, "success");
+    $("#custom-retrieval-results").innerHTML = d.results.map((r,i) => "<article class='result-card'><div class='result-meta'><span>#" + (i+1) + " · " + esc(r.id) + "</span><b>score " + fmt(r.score,5) + "</b></div><p>" + esc(r.text) + "</p></article>").join("");
+  } catch (err) { msg("#custom-retrieval-message", err.message, "error"); }
+  finally { b.disabled = false; }
+});
