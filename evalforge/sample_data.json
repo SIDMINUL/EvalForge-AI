@@ -1,0 +1,141 @@
+{
+  "name": "EvalForge RAG Starter Benchmark",
+  "description": "Small illustrative dataset. Review relevance labels before drawing conclusions.",
+  "documents": [
+    {
+      "id": "d1",
+      "text": "RAG combines retrieval with generation. A retriever finds relevant passages from a knowledge source and a language model uses those passages to formulate an answer grounded in evidence."
+    },
+    {
+      "id": "d2",
+      "text": "BM25 is a lexical ranking function based on term frequency, inverse document frequency, and document length normalization. It is a strong baseline for keyword search."
+    },
+    {
+      "id": "d3",
+      "text": "Dense retrieval encodes queries and documents into vectors. Similarity between vectors can retrieve semantically related text even when exact words differ."
+    },
+    {
+      "id": "d4",
+      "text": "Reciprocal Rank Fusion combines ranked result lists. Each document receives a score based on the reciprocal of a constant plus its rank in each list."
+    },
+    {
+      "id": "d5",
+      "text": "Recall at k measures the fraction of all known relevant documents found within the first k retrieved results."
+    },
+    {
+      "id": "d6",
+      "text": "Precision at k measures how many of the first k results are relevant, divided by k. It penalizes irrelevant documents in the result list."
+    },
+    {
+      "id": "d7",
+      "text": "Mean reciprocal rank averages the reciprocal of the rank of the first relevant result across a set of queries."
+    },
+    {
+      "id": "d8",
+      "text": "Normalized discounted cumulative gain evaluates ranking quality by giving more credit to relevant documents appearing near the top of a ranked list."
+    },
+    {
+      "id": "d9",
+      "text": "A reliable RAG evaluation dataset should include representative queries, document relevance labels, a held-out test set, and documented data provenance."
+    },
+    {
+      "id": "d10",
+      "text": "Latency benchmarking measures retrieval response time. Report measurement environment, warm-up behavior, and median or percentile latency instead of a single run."
+    },
+    {
+      "id": "d11",
+      "text": "An LLM-as-a-judge uses a language model to score answer relevance, groundedness, and correctness against supplied context and evaluation criteria."
+    },
+    {
+      "id": "d12",
+      "text": "Citation accuracy checks whether cited passages support claims in an answer. Groundedness checks whether generated claims are supported by retrieved context."
+    }
+  ],
+  "queries": [
+    {
+      "id": "q1",
+      "query": "What is retrieval augmented generation and how does it ground answers?",
+      "relevant_doc_ids": [
+        "d1"
+      ]
+    },
+    {
+      "id": "q2",
+      "query": "Explain BM25 term frequency and document length normalization.",
+      "relevant_doc_ids": [
+        "d2"
+      ]
+    },
+    {
+      "id": "q3",
+      "query": "How can semantic vector search find passages without exact keyword overlap?",
+      "relevant_doc_ids": [
+        "d3"
+      ]
+    },
+    {
+      "id": "q4",
+      "query": "How does reciprocal rank fusion combine retrieval rankings?",
+      "relevant_doc_ids": [
+        "d4"
+      ]
+    },
+    {
+      "id": "q5",
+      "query": "Define recall at five for search evaluation.",
+      "relevant_doc_ids": [
+        "d5"
+      ]
+    },
+    {
+      "id": "q6",
+      "query": "How do we measure the proportion of top results that are relevant?",
+      "relevant_doc_ids": [
+        "d6"
+      ]
+    },
+    {
+      "id": "q7",
+      "query": "Which metric rewards the position of the first relevant search result?",
+      "relevant_doc_ids": [
+        "d7"
+      ]
+    },
+    {
+      "id": "q8",
+      "query": "How can we evaluate whether relevant passages are ranked near the top?",
+      "relevant_doc_ids": [
+        "d8"
+      ]
+    },
+    {
+      "id": "q9",
+      "query": "What makes a reproducible retrieval evaluation dataset?",
+      "relevant_doc_ids": [
+        "d9"
+      ]
+    },
+    {
+      "id": "q10",
+      "query": "How should median and percentile response times be reported?",
+      "relevant_doc_ids": [
+        "d10"
+      ]
+    },
+    {
+      "id": "q11",
+      "query": "Can an LLM grade relevance and groundedness of a generated answer?",
+      "relevant_doc_ids": [
+        "d11",
+        "d12"
+      ]
+    },
+    {
+      "id": "q12",
+      "query": "How do you check if answer citations support its claims?",
+      "relevant_doc_ids": [
+        "d12"
+      ]
+    }
+  ]
+}

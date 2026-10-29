@@ -1,0 +1,2 @@
+"""EvalForge AI: reproducible retrieval evaluation."""
+__version__ = "1.0.0"

@@ -1,33 +1,12 @@
 services:
   - type: web
-    name: autostream-ai-agent
+    name: evalforge-ai
     runtime: python
-    buildCommand: apt-get update && apt-get install -y ffmpeg && pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: /health
+    healthCheckPath: /api/health
     envVars:
       - key: PYTHON_VERSION
-        value: 3.13.5
-      - key: GROQ_API_KEY
-        sync: false
-      - key: HF_API_KEY
-        sync: false
-      - key: HF_API_SECRET
-        sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-      - key: SUPABASE_STORAGE_BUCKET
-        value: autostream-videos
-      - key: DATABASE_URL
-        fromDatabase:
-          name: autostream-ai-db
-          property: connectionString
-
-databases:
-  - name: autostream-ai-db
-    plan: free
-    region: singapore
-    databaseName: autostream_ai_db
-    user: autostream_ai_db_user
+        value: 3.11.11
+      - key: EVALFORGE_DATASET
+        value: evalforge/sample_data.json
