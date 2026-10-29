@@ -45,6 +45,18 @@ Example retrieval JSON: {"query":"How do I evaluate RAG retrieval quality?","ret
 ## Dataset and metrics
 evalforge/sample_data.json contains stable document IDs and relevant_doc_ids for each query. The sample is illustrative, not production-grade. Review labels and use held-out queries before making performance claims. Recall@k measures relevant documents found in top k; Precision@k is relevant results divided by k; MRR@k rewards the first relevant result's rank; NDCG@k rewards relevant results near the top. Latency depends on hardware, cache, and model warm-up.
 
+## Exploratory expanded benchmark results
+
+A local exploratory run on 29 October 2026 used an expanded corpus of 43 documents and 74 queries, with Recall@5, Precision@5, MRR@5, NDCG@5, and retrieval latency. The relevance labels for 10 queries were manually broadened after inspecting overlapping passages.
+
+| Retriever | Recall@5 | Precision@5 | MRR@5 | NDCG@5 | Median latency (ms) | P95 latency (ms) |
+|---|---:|---:|---:|---:|---:|---:|
+| BM25 | 0.8649 | 0.1973 | 0.6475 | 0.6972 | 0.438 | 0.723 |
+| Dense (all-MiniLM-L6-v2) | 0.9347 | 0.2135 | 0.7523 | 0.7960 | 13.922 | 21.385 |
+| Hybrid RRF | 0.9414 | 0.2135 | 0.7959 | 0.8211 | 12.604 | 15.575 |
+
+**Interpretation:** Hybrid RRF had the strongest aggregate ranking metrics in this run. The benchmark is exploratory, not a production-grade or independently validated evaluation: the corpus and queries are synthetic, only 10 query labels were revised, and latency is hardware/runtime dependent. These figures are recorded for transparency; the expanded dataset and report are not part of the checked-in starter corpus, so they cannot be reproduced from a fresh checkout yet. Do not describe label revisions as an algorithmic improvement.
+
 ## Run an experiment on your own document
 Use the **Your document** section in the dashboard to upload a `.txt` or `.md` file (maximum 2 MB), then ask questions against its chunks using BM25, dense, or hybrid retrieval. The chunker preserves detected headings and avoids merging chunks across section boundaries. Short question-only chunks are down-ranked for answer-style retrieval so a repeated question in an appendix is less likely to outrank an explanatory passage. The upload is held in the running server's memory and is replaced when another document is uploaded; restarting the service clears it. PDF/DOCX upload is not supported yet, so export or copy the document text to TXT/Markdown first. This mode shows retrieved chunks and latency. Meaningful Recall@k, Precision@k, MRR@k, and NDCG@k benchmarking requires labelled queries and relevant document IDs; the app does not fabricate labels for personal documents.
 
