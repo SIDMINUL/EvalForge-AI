@@ -46,3 +46,12 @@ def test_question_only_chunks_are_downranked():
     ]
     rows = BM25Retriever(docs).retrieve("What does Luffy associate with becoming King of the Pirates?", 2)
     assert rows[0]["id"] == "answer"
+
+def test_question_bank_chunks_are_downranked():
+    from evalforge.retrieval import BM25Retriever
+    docs = [
+        {"id": "questions", "text": "APPENDIX A: SAMPLE QUESTIONS. Direct questions include: What does Luffy want? Why does he value freedom? How does the crew work together? What does Robin study? What is the ship's role?"},
+        {"id": "answer", "text": "Luffy associates becoming King of the Pirates with personal freedom, not ruling others. He wants to choose his own path and expects his friends to have the same right."},
+    ]
+    rows = BM25Retriever(docs).retrieve("What does Luffy associate with becoming King of the Pirates?", 2)
+    assert rows[0]["id"] == "answer"
