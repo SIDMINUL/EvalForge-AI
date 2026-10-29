@@ -64,7 +64,7 @@ def chunk_document(filename: str, content: str, chunk_size: int = 850, overlap: 
     heading_re = re.compile(
         r"^(?:#{1,6}\s+.+|SECTION\s+\d+\s*:.+|APPENDIX\s+[A-Z]\s*:.+|"
         r"[A-Z][A-Z0-9 ,:'’()—–-]{4,90})$",
-        re.IGNORECASE if False else 0,
+        0,
     )
     sections, current = [], []
     for raw_line in text.split("\n"):
