@@ -9,10 +9,22 @@ def _result(doc,score,name,engine=None):
     if engine:out["engine"]=engine
     return out
 def _question_only_penalty(doc, score):
-    """Down-rank short question-only chunks for answer retrieval without hiding them."""
+    """Down-rank question banks and question-only chunks for answer-seeking queries."""
     text=str(doc.get("text","")).strip()
     words=tokenize(text)
-    if len(words) <= 45 and text.endswith("?") and QUESTION_START.match(text) and text.count("?") == 1:
+    lower=text.lower()
+    question_count=text.count("?")
+    question_bank_markers=("sample questions", "retrieval test", "discussion prompts",
+                           "direct questions include", "thematic questions include",
+                           "comparison questions include", "appendix a")
+    is_question_bank=question_count >= 3 and (
+        any(marker in lower for marker in question_bank_markers) or question_count >= 8
+    )
+    is_question_only=(len(words) <= 45 and text.endswith("?")
+                      and QUESTION_START.match(text) and question_count == 1)
+    if is_question_bank:
+        return float(score)*0.15
+    if is_question_only:
         return float(score)*0.2
     return float(score)
 class BM25Retriever:
