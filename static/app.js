@@ -1,5 +1,24 @@
 const $=s=>document.querySelector(s);let report=null;
-async function req(url,opts={}){const r=await fetch(url,opts),d=await r.json();if(!r.ok)throw Error(d.detail||"Request failed");return d}
+async function req(url,opts={}) {
+  let r;
+  try {
+    r = await fetch(url, opts);
+  } catch (err) {
+    throw Error("Could not reach the API. Check your connection and try again.");
+  }
+  const contentType = r.headers.get("content-type") || "";
+  const body = await r.text();
+  let data;
+  if (contentType.includes("application/json")) {
+    try { data = JSON.parse(body); }
+    catch { throw Error("The API returned invalid JSON (HTTP " + r.status + "). Please retry; if this continues, check the deployment logs."); }
+  } else {
+    const preview = body.replace(/\\s+/g, " ").slice(0, 180);
+    throw Error("Expected JSON from " + url + " but received " + (contentType || "an unknown content type") + " (HTTP " + r.status + "). " + (preview ? "Response: " + preview : "The response was empty."));
+  }
+  if (!r.ok) throw Error(data.detail || data.message || ("Request failed (HTTP " + r.status + ")"));
+  return data;
+}
 function fmt(v,n=3){return Number.isFinite(Number(v))?Number(v).toFixed(n):"—"}
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function msg(sel,text,kind=""){const e=$(sel);e.textContent=text;e.className="message"+(kind?" "+kind:"")}
