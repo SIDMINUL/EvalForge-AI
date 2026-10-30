@@ -1,53 +1,128 @@
 # EvalForge AI
 
-A reproducible evaluation workbench for retrieval-augmented generation (RAG). Compare BM25, dense, and hybrid retrieval; inspect ranking quality and latency; optionally score generated answers with a hosted LLM judge.
+**A RAG evaluation workbench for measuring retrieval quality, inspecting results, and judging generated answers.**
 
-## Features
-- BM25 lexical retrieval implemented in-project.
-- Dense retrieval with optional Sentence Transformers and a TF-IDF cosine fallback.
-- Hybrid retrieval using Reciprocal Rank Fusion (RRF).
-- Recall@k, Precision@k, MRR@k, NDCG@k, and latency metrics.
-- Labelled sample corpus, per-query inspection, JSON report export.
-- Upload your own TXT/Markdown document and run a retrieval experiment against automatically created chunks.
-- FastAPI service, responsive dashboard, CLI benchmark, tests and CI.
-- Optional Groq-hosted LLM-as-a-judge for groundedness, relevance, and correctness.
+EvalForge AI helps developers compare retrieval strategies on a labelled dataset and experiment with their own documents. It brings retrieval, ranking metrics, latency measurement, and an optional hosted LLM judge into one web dashboard.
 
-## Quick start
-Python 3.10+ recommended.
+**Live demo:** https://autostream-ai-agent-g5hi.onrender.com
 
-    git clone https://github.com/SIDMINUL/AutoStream-AI-Agent.git
-    cd AutoStream-AI-Agent
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
-    uvicorn api:app --reload
+## What it does
 
-Windows activation: .venv\\Scripts\\activate. Dashboard: http://127.0.0.1:8000. API docs: http://127.0.0.1:8000/docs.
+- **Compare retrieval methods:** BM25, dense retrieval, and hybrid retrieval with Reciprocal Rank Fusion (RRF).
+- **Measure retrieval quality:** Recall@K, Precision@K, Mean Reciprocal Rank (MRR@K), and Normalized Discounted Cumulative Gain (NDCG@K).
+- **Inspect performance:** Review retrieved documents and measure retrieval latency, including median and P95.
+- **Experiment with your own content:** Upload TXT or Markdown documents, create searchable chunks, and query them using the available retrievers.
+- **Evaluate generated answers:** Use the optional Groq-hosted LLM judge to score groundedness, relevance, and correctness.
+- **Export and reproduce:** Run the benchmark from the CLI, export JSON reports, and use the included tests.
 
-Run a benchmark and export JSON:
+## Tech stack
 
-    python -m evalforge.benchmark --k 5 --output reports/benchmark.json
+- **Backend:** Python, FastAPI
+- **Retrieval:** BM25, Sentence Transformers (optional), TF-IDF fallback, Reciprocal Rank Fusion
+- **Evaluation:** Recall@K, Precision@K, MRR@K, NDCG@K, latency
+- **LLM judge:** Groq API
+- **Frontend:** HTML, CSS, JavaScript
+- **Testing:** pytest
+- **Deployment:** Render
 
-For neural embeddings, install Sentence Transformers with pip install sentence-transformers. The first run may download all-MiniLM-L6-v2. Without it, dense retrieval uses TF-IDF and reports that fallback engine explicitly.
+## Getting started
 
-## API
-- GET /api/health — service and dataset status
-- GET /api/dataset — dataset examples and counts
-- POST /api/retrieve — retrieve with BM25, dense, or hybrid on the sample corpus
-- POST /api/experiment/document — upload TXT/Markdown content and split it into searchable chunks
-- POST /api/experiment/retrieve — query the currently uploaded custom document
-- POST /api/benchmark — run labelled benchmark
-- GET /api/benchmark/latest — latest in-memory report
-- POST /api/judge — optional Groq LLM evaluation
+Python 3.10+ is recommended.
 
-Example retrieval JSON: {"query":"How do I evaluate RAG retrieval quality?","retriever":"hybrid","k":5}
+```bash
+git clone https://github.com/SIDMINUL/AutoStream-AI-Agent.git
+cd AutoStream-AI-Agent
 
-## Dataset and metrics
-evalforge/sample_data.json contains stable document IDs and relevant_doc_ids for each query. The sample is illustrative, not production-grade. Review labels and use held-out queries before making performance claims. Recall@k measures relevant documents found in top k; Precision@k is relevant results divided by k; MRR@k rewards the first relevant result's rank; NDCG@k rewards relevant results near the top. Latency depends on hardware, cache, and model warm-up.
+python -m venv .venv
+# macOS / Linux
+source .venv/bin/activate
+# Windows PowerShell
+# .venv\\Scripts\\Activate.ps1
 
-## Exploratory expanded benchmark results
+pip install -r requirements.txt
+uvicorn api:app --reload
+```
 
-A local exploratory run on 29 October 2026 used an expanded corpus of 43 documents and 74 queries, with Recall@5, Precision@5, MRR@5, NDCG@5, and retrieval latency. The relevance labels for 10 queries were manually broadened after inspecting overlapping passages.
+Open the dashboard at http://127.0.0.1:8000. Interactive API documentation is available at http://127.0.0.1:8000/docs.
+
+### Optional neural dense retrieval
+
+Install Sentence Transformers to use the neural embedding backend:
+
+```bash
+pip install sentence-transformers
+```
+
+The first run may download the configured embedding model. If Sentence Transformers is unavailable, EvalForge AI uses its TF-IDF cosine-similarity fallback and identifies that backend in the results.
+
+## Run a benchmark
+
+```bash
+python -m evalforge.benchmark --k 5 --output reports/benchmark.json
+```
+
+The benchmark uses the labelled sample corpus in `evalforge/sample_data.json`. Each query contains relevant document IDs, allowing the evaluation metrics to be calculated against known relevance labels.
+
+## Run an experiment on your own document
+
+1. Open the dashboard's **Your document** section.
+2. Upload a TXT or Markdown file (maximum 2 MB).
+3. Enter a question and select BM25, dense, or hybrid retrieval.
+4. Inspect the retrieved chunks and latency.
+
+The uploaded document is held in server memory and is replaced when another document is uploaded. Restarting the service clears it. PDF and DOCX uploads are not currently supported.
+
+Custom-document mode is intended for retrieval exploration. Ranking metrics such as Recall@K and NDCG@K require labelled queries and relevant document IDs; the application does not invent relevance labels for uploaded documents.
+
+## Optional LLM-as-a-Judge
+
+EvalForge AI can use Groq-hosted inference to evaluate a generated answer against its question and retrieved context.
+
+Set these environment variables on the server:
+
+| Variable | Required | Description |
+|---|---|---|
+| `GROQ_API_KEY` | Yes, for judging | Your Groq API key |
+| `GROQ_MODEL` | No | Model ID enabled for your Groq account; defaults to `openai/gpt-oss-120b` |
+| `EVALFORGE_DATASET` | No | Path to a custom dataset JSON |
+| `EVALFORGE_EMBEDDING_MODEL` | No | Sentence Transformers model name |
+
+The judge returns scores for **groundedness**, **relevance**, and **correctness**, along with a rationale. These are model-generated assessments and should be reviewed by a human. Ollama is not required on the deployed Render service.
+
+## API overview
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/health` | Service and dataset status |
+| GET | `/api/dataset` | Sample dataset and counts |
+| POST | `/api/retrieve` | Retrieve from the sample corpus |
+| POST | `/api/experiment/document` | Upload a TXT/Markdown document |
+| POST | `/api/experiment/retrieve` | Retrieve from the uploaded document |
+| POST | `/api/benchmark` | Run the labelled benchmark |
+| GET | `/api/benchmark/latest` | Retrieve the latest in-memory report |
+| POST | `/api/judge` | Run the optional Groq answer judge |
+
+Example retrieval request:
+
+```json
+{
+  "query": "How do I evaluate RAG retrieval quality?",
+  "retriever": "hybrid",
+  "k": 5
+}
+```
+
+## Evaluation metrics
+
+- **Recall@K:** Fraction of all relevant documents retrieved in the top K.
+- **Precision@K:** Fraction of the top K retrieved documents that are relevant.
+- **MRR@K:** Reciprocal rank of the first relevant result, averaged across queries.
+- **NDCG@K:** Ranking metric that rewards relevant documents appearing higher in the result list.
+- **Latency:** Time taken by the retrieval operation; results depend on hardware, caching, and model warm-up.
+
+## Exploratory benchmark snapshot
+
+An exploratory local run on 29 October 2026 used an expanded corpus of 43 documents and 74 queries. Relevance labels for 10 queries were manually broadened after reviewing overlapping passages.
 
 | Retriever | Recall@5 | Precision@5 | MRR@5 | NDCG@5 | Median latency (ms) | P95 latency (ms) |
 |---|---:|---:|---:|---:|---:|---:|
@@ -55,24 +130,25 @@ A local exploratory run on 29 October 2026 used an expanded corpus of 43 documen
 | Dense (all-MiniLM-L6-v2) | 0.9347 | 0.2135 | 0.7523 | 0.7960 | 13.922 | 21.385 |
 | Hybrid RRF | 0.9414 | 0.2135 | 0.7959 | 0.8211 | 12.604 | 15.575 |
 
-**Interpretation:** Hybrid RRF had the strongest aggregate ranking metrics in this run. The benchmark is exploratory, not a production-grade or independently validated evaluation: the corpus and queries are synthetic, only 10 query labels were revised, and latency is hardware/runtime dependent. These figures are recorded for transparency; the expanded dataset and report are not part of the checked-in starter corpus, so they cannot be reproduced from a fresh checkout yet. Do not describe label revisions as an algorithmic improvement.
+**Interpretation:** Hybrid RRF achieved the strongest aggregate ranking metrics in this particular run. Treat these values as an exploratory snapshot, not a production-grade or independently validated result. The corpus and queries were synthetic, 10 query labels were revised manually, and latency is environment-dependent. The expanded dataset and report are not included in the starter repository, so these exact figures are not reproducible from a fresh checkout.
 
-## Run an experiment on your own document
-Use the **Your document** section in the dashboard to upload a `.txt` or `.md` file (maximum 2 MB), then ask questions against its chunks using BM25, dense, or hybrid retrieval. The chunker preserves detected headings and avoids merging chunks across section boundaries. Short question-only chunks are down-ranked for answer-style retrieval so a repeated question in an appendix is less likely to outrank an explanatory passage. The upload is held in the running server's memory and is replaced when another document is uploaded; restarting the service clears it. PDF/DOCX upload is not supported yet, so export or copy the document text to TXT/Markdown first. This mode shows retrieved chunks and latency. Meaningful Recall@k, Precision@k, MRR@k, and NDCG@k benchmarking requires labelled queries and relevant document IDs; the app does not fabricate labels for personal documents.
+## Tests
 
-## Optional LLM judge
-Configure GROQ_API_KEY in the server environment. GROQ_MODEL is optional and defaults to openai/gpt-oss-120b, a currently supported Groq production model. You can override it with another model enabled for your Groq account. The judge calls Groq's hosted chat-completions API, so Ollama does not need to run on the Render service. Then call POST /api/judge. Scores are model estimates and need human review.
+```bash
+pip install pytest httpx
+pytest -q
+```
 
-## Configuration
-EVALFORGE_DATASET optionally points to a custom dataset JSON. EVALFORGE_EMBEDDING_MODEL selects the embedding model. GROQ_API_KEY authenticates the hosted judge; GROQ_MODEL selects the model.
+GitHub Actions runs the test suite on pushes and pull requests.
 
-## Development
-    pip install pytest httpx
-    pytest -q
+## Current limitations
 
-GitHub Actions runs tests on pushes and pull requests.
+- The included sample dataset is small and illustrative.
+- TF-IDF fallback is not equivalent to a neural embedding model.
+- Uploaded documents and the latest benchmark report are stored in memory and are cleared when the service restarts.
+- The optional LLM judge requires a valid Groq API key and access to the selected model.
+- Production use would benefit from persistent experiment storage, dataset versioning, access control, and token/cost tracking.
 
-## Limitations
-Sample data is small; TF-IDF fallback is not a neural embedding model; latest benchmark history is in memory unless exported; the optional judge requires a valid Groq API key and available model. Production use should add dataset versioning, persistent experiment storage, access control, and token/cost accounting.
+## Maintainer
 
-Maintainer: https://github.com/SIDMINUL
+[SIDMINUL](https://github.com/SIDMINUL)
