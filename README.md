@@ -1,6 +1,6 @@
 # EvalForge AI
 
-A reproducible evaluation workbench for retrieval-augmented generation (RAG). Compare BM25, dense, and hybrid retrieval; inspect ranking quality and latency; optionally score generated answers with a local LLM judge.
+A reproducible evaluation workbench for retrieval-augmented generation (RAG). Compare BM25, dense, and hybrid retrieval; inspect ranking quality and latency; optionally score generated answers with a hosted LLM judge.
 
 ## Features
 - BM25 lexical retrieval implemented in-project.
@@ -61,7 +61,7 @@ A local exploratory run on 29 October 2026 used an expanded corpus of 43 documen
 Use the **Your document** section in the dashboard to upload a `.txt` or `.md` file (maximum 2 MB), then ask questions against its chunks using BM25, dense, or hybrid retrieval. The chunker preserves detected headings and avoids merging chunks across section boundaries. Short question-only chunks are down-ranked for answer-style retrieval so a repeated question in an appendix is less likely to outrank an explanatory passage. The upload is held in the running server's memory and is replaced when another document is uploaded; restarting the service clears it. PDF/DOCX upload is not supported yet, so export or copy the document text to TXT/Markdown first. This mode shows retrieved chunks and latency. Meaningful Recall@k, Precision@k, MRR@k, and NDCG@k benchmarking requires labelled queries and relevant document IDs; the app does not fabricate labels for personal documents.
 
 ## Optional LLM judge
-Configure GROQ_API_KEY in the server environment. GROQ_MODEL is optional and defaults to llama-3.3-70b-versatile. The judge calls Groq's hosted chat-completions API, so Ollama does not need to run on the Render service. Then call POST /api/judge. Scores are model estimates and need human review.
+Configure GROQ_API_KEY in the server environment. GROQ_MODEL is optional and defaults to openai/gpt-oss-120b, a currently supported Groq production model. You can override it with another model enabled for your Groq account. The judge calls Groq's hosted chat-completions API, so Ollama does not need to run on the Render service. Then call POST /api/judge. Scores are model estimates and need human review.
 
 ## Configuration
 EVALFORGE_DATASET optionally points to a custom dataset JSON. EVALFORGE_EMBEDDING_MODEL selects the embedding model. GROQ_API_KEY authenticates the hosted judge; GROQ_MODEL selects the model.
