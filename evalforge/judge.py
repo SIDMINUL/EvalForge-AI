@@ -45,7 +45,7 @@ CANDIDATE ANSWER: {a}""".format(
             "Content-Type": "application/json",
             "Accept": "application/json",
             "Authorization": "Bearer " + api_key,
-            "User-Agent": "EvalForgeAI/1.0 (+https://github.com/SIDMINUL/AutoStream-AI-Agent)",
+            "User-Agent": "EvalForgeAI/1.0 (+https://github.com/SIDMINUL/EvalForge-AI)",
         },
         method="POST",
     )
