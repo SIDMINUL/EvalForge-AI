@@ -30,8 +30,8 @@ EvalForge AI helps developers compare retrieval strategies on a labelled dataset
 Python 3.10+ is recommended.
 
 ```bash
-git clone https://github.com/SIDMINUL/AutoStream-AI-Agent.git
-cd AutoStream-AI-Agent
+git clone https://github.com/SIDMINUL/EvalForge-AI.git
+cd EvalForge-AI
 
 python -m venv .venv
 # macOS / Linux
