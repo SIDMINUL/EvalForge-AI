@@ -43,7 +43,9 @@ CANDIDATE ANSWER: {a}""".format(
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
+            "Accept": "application/json",
             "Authorization": "Bearer " + api_key,
+            "User-Agent": "EvalForgeAI/1.0 (+https://github.com/SIDMINUL/AutoStream-AI-Agent)",
         },
         method="POST",
     )
