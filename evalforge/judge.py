@@ -7,7 +7,7 @@ import urllib.request
 
 def judge_answer(question, answer, contexts, expected_answer=None):
     api_key = os.getenv("GROQ_API_KEY", "").strip()
-    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     if not api_key:
         raise RuntimeError(
             "The LLM judge needs a GROQ_API_KEY. Create a Groq API key and add it "
