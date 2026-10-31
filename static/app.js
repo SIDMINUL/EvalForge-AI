@@ -62,3 +62,34 @@ $("#custom-retrieve-form").addEventListener("submit", async e => {
   } catch (err) { msg("#custom-retrieval-message", err.message, "error"); }
   finally { b.disabled = false; }
 });
+
+
+$("#answer-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const b = e.submitter;
+  b.disabled = true;
+  $("#answer-output").hidden = true;
+  $("#answer-sources").innerHTML = "";
+  msg("#answer-message", "Retrieving evidence and preparing an answer…");
+  try {
+    const d = await req("/api/answer", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        query: $("#answer-query").value,
+        retriever: $("#answer-retriever").value,
+        k: Number($("#answer-k").value)
+      })
+    });
+    $("#answer-text").textContent = d.answer;
+    $("#answer-mode").textContent = d.mode === "generated" ? "Groq-generated answer" : d.mode === "extractive_fallback" ? "Extractive fallback · no API key" : "Insufficient context";
+    $("#answer-engine").textContent = d.engine + " · " + fmt(d.retrieval_latency_ms, 2) + " ms retrieval";
+    $("#answer-sources").innerHTML = "<h3>Retrieved evidence</h3>" + d.sources.map((s, i) => "<article class='result-card'><div class='result-meta'><span>Source " + (i + 1) + " · " + esc(s.id) + "</span><b>score " + fmt(s.score, 5) + "</b></div><p>" + esc(s.text) + "</p></article>").join("");
+    $("#answer-output").hidden = false;
+    msg("#answer-message", d.notice || "Answer generated from retrieved context. Check the cited passages before relying on it.", "success");
+  } catch (err) {
+    msg("#answer-message", err.message, "error");
+  } finally {
+    b.disabled = false;
+  }
+});
