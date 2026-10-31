@@ -13,7 +13,7 @@ def _extractive_answer(contexts):
     text = str(contexts[0].get("text", "")).strip()
     if not text:
         return "I don't have enough retrieved context to answer this question."
-    sentences = re.split(r"(?<=[.!?])\s+, text)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
     excerpt = " ".join(sentences[:3]).strip()
     if len(excerpt) > 900:
         excerpt = excerpt[:897].rsplit(" ", 1)[0] + "..."
