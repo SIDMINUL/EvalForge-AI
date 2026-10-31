@@ -4,8 +4,6 @@
 
 EvalForge AI helps developers compare retrieval strategies on a labelled dataset and experiment with their own documents. It brings retrieval, ranking metrics, latency measurement, and an optional hosted LLM judge into one web dashboard.
 
-**Live demo:** https://autostream-ai-agent-g5hi.onrender.com
-
 ## What it does
 
 - **Compare retrieval methods:** BM25, dense retrieval, and hybrid retrieval with Reciprocal Rank Fusion (RRF).
