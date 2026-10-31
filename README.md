@@ -10,6 +10,7 @@ EvalForge AI helps developers compare retrieval strategies on a labelled dataset
 - **Measure retrieval quality:** Recall@K, Precision@K, Mean Reciprocal Rank (MRR@K), and Normalized Discounted Cumulative Gain (NDCG@K).
 - **Inspect performance:** Review retrieved documents and measure retrieval latency, including median and P95.
 - **Experiment with your own content:** Upload TXT or Markdown documents, create searchable chunks, and query them using the available retrievers.
+- **Generate grounded answers:** Retrieve relevant passages and generate answers with Groq; a clearly labelled extractive fallback works without an API key.
 - **Evaluate generated answers:** Use the optional Groq-hosted LLM judge to score groundedness, relevance, and correctness.
 - **Export and reproduce:** Run the benchmark from the CLI, export JSON reports, and use the included tests.
 
@@ -85,6 +86,8 @@ Set these environment variables on the server:
 | `EVALFORGE_DATASET` | No | Path to a custom dataset JSON |
 | `EVALFORGE_EMBEDDING_MODEL` | No | Sentence Transformers model name |
 
+The RAG answer endpoint uses Groq when `GROQ_API_KEY` is configured. Without a key, it returns a conservative excerpt from the highest-ranked passage and labels the result as an extractive fallback. Empty retrieval results produce an abstention rather than a fabricated answer.
+
 The judge returns scores for **groundedness**, **relevance**, and **correctness**, along with a rationale. These are model-generated assessments and should be reviewed by a human. Ollama is not required on the deployed Render service.
 
 ## API overview
@@ -98,6 +101,7 @@ The judge returns scores for **groundedness**, **relevance**, and **correctness*
 | POST | `/api/experiment/retrieve` | Retrieve from the uploaded document |
 | POST | `/api/benchmark` | Run the labelled benchmark |
 | GET | `/api/benchmark/latest` | Retrieve the latest in-memory report |
+| POST | `/api/answer` | Retrieve context and generate a grounded answer |
 | POST | `/api/judge` | Run the optional Groq answer judge |
 
 Example retrieval request:
@@ -109,6 +113,18 @@ Example retrieval request:
   "k": 5
 }
 ```
+
+Example RAG answer request:
+
+```json
+{
+  "query": "What does Recall@k measure?",
+  "retriever": "hybrid",
+  "k": 5
+}
+```
+
+The response includes the answer, generation mode/provider, retrieval latency, and source passages with IDs and scores.
 
 ## Evaluation metrics
 
