@@ -104,3 +104,33 @@ def test_load_dataset_accepts_utf8_bom(tmp_path):
     loaded = load_dataset(path)
     assert loaded["name"] == "BOM test"
     assert loaded["queries"][0]["relevant_doc_ids"] == ["d1"]
+
+
+
+def test_answer_api_uses_extractive_fallback_without_groq_key(monkeypatch):
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    response = client.post("/api/answer", json={
+        "query": "What does Recall@k measure?",
+        "retriever": "bm25",
+        "k": 3,
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["answer"]
+    assert data["provider"] == "local"
+    assert data["mode"] == "extractive_fallback"
+    assert data["sources"]
+    assert data["sources"][0]["id"]
+
+
+def test_answer_api_rejects_empty_query():
+    response = client.post("/api/answer", json={"query": "", "retriever": "bm25"})
+    assert response.status_code == 422
+
+
+def test_answer_api_abstains_without_context(monkeypatch):
+    from evalforge.answer import generate_answer
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    result = generate_answer("What is missing?", [])
+    assert result["mode"] == "abstain"
+    assert "enough retrieved context" in result["answer"].lower()

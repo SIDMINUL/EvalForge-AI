@@ -3,6 +3,22 @@ import json,os
 from pathlib import Path
 
 DEFAULT_DATASET=Path(__file__).with_name("sample_data.json")
+EXPANDED_DATASET = Path(__file__).with_name("expanded_data.json")
+
+DATASET_PATHS = {
+    "starter": DEFAULT_DATASET,
+    "expanded": EXPANDED_DATASET,
+}
+
+
+def load_named_dataset(name):
+    """Load a dataset using an approved dataset identifier."""
+    if name not in DATASET_PATHS:
+        raise ValueError(
+            "Choose either the starter or expanded dataset."
+        )
+
+    return load_dataset(DATASET_PATHS[name])
 
 def load_dataset(path=None):
     source=Path(path or os.getenv("EVALFORGE_DATASET",DEFAULT_DATASET))

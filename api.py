@@ -7,8 +7,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from evalforge.answer import generate_answer
 from evalforge.benchmark import run_benchmark
-from evalforge.data import load_dataset
+from evalforge.data import load_dataset, load_named_dataset
 from evalforge.judge import judge_answer
 from evalforge.retrieval import build_retriever, retrieve_timed
 
@@ -28,6 +29,7 @@ class RetrieveRequest(BaseModel):
 
 class BenchmarkRequest(BaseModel):
     k: int = Field(default=5, ge=1, le=20)
+    dataset: Literal["starter", "expanded"] = "starter"
 
 
 class CustomDocumentRequest(BaseModel):
@@ -39,6 +41,12 @@ class CustomRetrieveRequest(BaseModel):
     query: str = Field(min_length=1, max_length=4000)
     retriever: Literal["bm25", "dense", "hybrid"] = "hybrid"
     k: int = Field(default=5, ge=1, le=20)
+
+
+class AnswerRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=4000)
+    retriever: Literal["bm25", "dense", "hybrid"] = "hybrid"
+    k: int = Field(default=5, ge=1, le=10)
 
 
 class JudgeRequest(BaseModel):
@@ -190,6 +198,23 @@ def retrieve_custom_document(request: CustomRetrieveRequest):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+@app.get("/api/datasets")
+def available_datasets():
+    return {
+        "datasets": [
+            {
+                "id": "starter",
+                "name": "Starter Dataset",
+                "description": "Original bundled evaluation dataset.",
+            },
+            {
+                "id": "expanded",
+                "name": "Expanded Dataset",
+                "description": "Synthetic development benchmark with additional topics.",
+            },
+        ]
+    }
+
 
 @app.post("/api/benchmark")
 def benchmark(request: BenchmarkRequest):
@@ -203,6 +228,35 @@ def latest():
     if _latest is None:
         raise HTTPException(status_code=404, detail="No benchmark run yet. POST /api/benchmark first.")
     return _latest
+
+
+@app.post("/api/answer")
+def answer(request: AnswerRequest):
+    """Retrieve evidence and generate an answer constrained to those passages."""
+    d = dataset()
+    try:
+        engine = build_retriever(request.retriever, d["documents"])
+        rows, retrieval_latency = retrieve_timed(engine, request.query, request.k)
+        generation = generate_answer(request.query, rows)
+        return {
+            "query": request.query,
+            "retriever": request.retriever,
+            "engine": getattr(engine, "engine", request.retriever),
+            "retrieval_latency_ms": round(retrieval_latency, 3),
+            "answer": generation["answer"],
+            "provider": generation["provider"],
+            "model": generation["model"],
+            "mode": generation["mode"],
+            "notice": generation.get("notice"),
+            "sources": [
+                {"id": row["id"], "score": row["score"], "text": row["text"]}
+                for row in rows
+            ],
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @app.post("/api/judge")
