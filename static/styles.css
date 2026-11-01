@@ -424,3 +424,111 @@ select {
     }
 }
 
+
+
+/* Final responsive overflow guard */
+@media (max-width: 980px) {
+  .topbar {
+    gap: 12px;
+    padding-inline: 16px;
+  }
+
+  .topbar nav {
+    display: none;
+  }
+
+  .status {
+    margin-left: auto;
+  }
+}
+
+html, body {
+  max-width: 100%;
+}
+
+body {
+  overflow-x: clip;
+}
+
+main {
+  min-width: 0;
+}
+
+.hero,
+.hero > *,
+.hero-visual,
+.section,
+.section-heading,
+.section-heading > *,
+.panel,
+.panel-title,
+.metric-grid,
+.metric-card,
+.result-list,
+.result-card,
+.judge-grid,
+footer,
+footer > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.section-heading {
+  flex-wrap: wrap;
+}
+
+.run-controls {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.panel {
+  overflow: hidden;
+}
+
+.table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap table {
+  width: 100%;
+  min-width: 760px;
+  max-width: none;
+}
+
+@media (max-width: 620px) {
+  main {
+    width: calc(100% - 28px);
+  }
+
+  .topbar {
+    width: 100%;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .run-controls,
+  .playground-controls {
+    width: 100%;
+  }
+
+  .run-controls select,
+  .playground-controls select {
+    max-width: 100%;
+  }
+
+  footer {
+    flex-wrap: wrap;
+  }
+}
