@@ -133,4 +133,4 @@ def test_answer_api_abstains_without_context(monkeypatch):
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
     result = generate_answer("What is missing?", [])
     assert result["mode"] == "abstain"
-    assert "not have enough" in result["answer"]
+    assert "enough retrieved context" in result["answer"].lower()

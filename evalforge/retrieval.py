@@ -2,7 +2,10 @@
 import math,os,re,time
 from collections import Counter
 TOKEN_RE=re.compile(r"[a-z0-9]+",re.I)
-QUESTION_START=re.compile(r"^(who|what|when|where|why|how|which|does|do|did|is|are|can|could|would|should)\\b",re.I)
+QUESTION_START = re.compile(
+    r"^(who|what|when|where|why|how|which|does|do|did|is|are|can|could|would|should)\b",
+    re.I
+)
 def tokenize(text):return TOKEN_RE.findall(text.lower())
 def _result(doc,score,name,engine=None):
     out={"id":str(doc["id"]),"text":doc["text"],"score":round(float(score),8),"retriever":name}

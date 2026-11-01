@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from evalforge.answer import generate_answer
 from evalforge.benchmark import run_benchmark
-from evalforge.data import load_dataset
+from evalforge.data import load_dataset, load_named_dataset
 from evalforge.judge import judge_answer
 from evalforge.retrieval import build_retriever, retrieve_timed
 
@@ -29,6 +29,7 @@ class RetrieveRequest(BaseModel):
 
 class BenchmarkRequest(BaseModel):
     k: int = Field(default=5, ge=1, le=20)
+    dataset: Literal["starter", "expanded"] = "starter"
 
 
 class CustomDocumentRequest(BaseModel):
@@ -196,6 +197,23 @@ def retrieve_custom_document(request: CustomRetrieveRequest):
         return {"filename": _custom_filename, "query": request.query, "retriever": request.retriever, "engine": getattr(engine, "engine", request.retriever), "latency_ms": round(latency, 3), "results": rows}
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+@app.get("/api/datasets")
+def available_datasets():
+    return {
+        "datasets": [
+            {
+                "id": "starter",
+                "name": "Starter Dataset",
+                "description": "Original bundled evaluation dataset.",
+            },
+            {
+                "id": "expanded",
+                "name": "Expanded Dataset",
+                "description": "Synthetic development benchmark with additional topics.",
+            },
+        ]
+    }
 
 
 @app.post("/api/benchmark")

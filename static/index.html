@@ -2,7 +2,26 @@
 <header class="topbar"><a class="brand" href="/"><span class="brand-mark">EF</span><span>EvalForge <b>AI</b><small>RAG EVALUATION WORKBENCH</small></span></a><nav><a href="#overview">Overview</a><a href="#benchmark">Benchmark</a><a href="#retrieval">Try retrieval</a><a href="#rag-answer">Ask with RAG</a><a href="#my-experiment">Your document</a><a href="/docs" target="_blank">API docs ↗</a></nav><span class="status"><i></i><span id="health-text">Connecting</span></span></header>
 <main><section class="hero" id="overview"><div><p class="eyebrow">MEASURE WHAT MATTERS</p><h1>Build better RAG.<br><span>Prove it with data.</span></h1><p class="hero-sub">Compare retrieval quality, ranking, and latency with a repeatable benchmark. Inspect results query by query, not just a headline score.</p><div class="hero-actions"><button class="btn primary" id="run-hero">Run benchmark →</button><a class="btn secondary" href="#retrieval">Explore a query</a></div><div class="hero-note"><span>BM25</span><span>Dense retrieval</span><span>Hybrid RRF</span><span>Optional LLM judge</span></div></div>
 <div class="hero-visual"><div class="visual-head">EXPERIMENT PREVIEW <span class="live-dot">● READY</span></div><div class="visual-chart"><div class="chart-label">Illustrative retrieval score</div><div class="mini-row"><label>BM25</label><div class="track"><i style="width:69%"></i></div><b>0.69</b></div><div class="mini-row"><label>Dense</label><div class="track"><i style="width:84%"></i></div><b>0.84</b></div><div class="mini-row"><label>Hybrid</label><div class="track"><i style="width:91%"></i></div><b>0.91</b></div><p class="visual-caption">Illustration only — run the benchmark for measured values.</p></div><div class="visual-foot"><div><small>DATASET</small><b id="hero-docs">— docs</b></div><div><small>TEST QUERIES</small><b id="hero-queries">— queries</b></div><div><small>METRICS</small><b>4 ranking metrics</b></div></div></div></section>
-<section class="section" id="benchmark"><div class="section-heading"><div><p class="eyebrow">01 / EVALUATION</p><h2>Retriever benchmark</h2><p>Run all methods on the same labelled queries and compare quality against latency.</p></div><div class="run-controls"><label for="k-value">Cutoff k</label><select id="k-value"><option>3</option><option selected>5</option><option>10</option></select><button class="btn primary" id="run-benchmark">Run benchmark</button></div></div><div id="benchmark-message" class="message">Ready. First dense run may initialize an embedding model.</div>
+<section class="section" id="benchmark"><div class="section-heading"><div><p class="eyebrow">01 / EVALUATION</p><h2>Retriever benchmark</h2><p>Run all methods on the same labelled queries and compare quality against latency.</p></div>
+    <div class="run-controls">
+        <label for="dataset-select">Dataset</label>
+        <select id="dataset-select">
+            <option value="starter">Starter Dataset</option>
+            <option value="expanded">Expanded Dataset (43 docs)</option>
+        </select>
+
+        <label for="k-value">Cutoff k</label>
+        <select id="k-value">
+            <option>3</option>
+            <option selected>5</option>
+            <option>10</option>
+        </select>
+
+        <button class="btn primary" id="run-benchmark">
+            Run benchmark
+        </button>
+    </div>
+        <div id="benchmark-message" class="message">Ready. First dense run may initialize an embedding model.</div>
 <div class="metric-grid"><article class="metric-card"><small>DATASET</small><strong id="metric-docs">—</strong><span>documents</span></article><article class="metric-card"><small>TEST QUERIES</small><strong id="metric-queries">—</strong><span>labelled questions</span></article><article class="metric-card"><small>RETRIEVERS</small><strong>3</strong><span>BM25 · Dense · Hybrid</span></article><article class="metric-card"><small>REPORT</small><strong id="metric-cutoff">@5</strong><span>ranking cutoff</span></article></div>
 <div class="panel"><div class="panel-title"><div><h3>Quality vs. speed</h3><p>Aggregate metrics averaged across sample queries.</p></div><span class="legend">Higher quality is better · lower latency is faster</span></div><div class="table-wrap"><table><thead><tr><th>Retriever / engine</th><th>Recall</th><th>Precision</th><th>MRR</th><th>NDCG</th><th>Median ms</th><th>P95 ms</th></tr></thead><tbody id="benchmark-rows"><tr><td colspan="7" class="empty">Run benchmark to populate results.</td></tr></tbody></table></div></div>
 <div class="panel"><div class="panel-title"><div><h3>Per-query inspection</h3><p>Find misses against labelled relevant documents.</p></div><select id="query-filter"><option value="all">All retrievers</option><option value="bm25">BM25</option><option value="dense">Dense</option><option value="hybrid">Hybrid</option></select></div><div class="table-wrap"><table><thead><tr><th>Query</th><th>Retriever</th><th>Recall</th><th>MRR</th><th>Relevant docs</th><th>Top results</th></tr></thead><tbody id="query-rows"><tr><td colspan="6" class="empty">Per-query results appear after a benchmark.</td></tr></tbody></table></div></div></section>

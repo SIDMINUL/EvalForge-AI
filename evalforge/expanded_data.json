@@ -1,0 +1,761 @@
+{
+  "name": "EvalForge Expanded Retrieval Benchmark",
+  "description": "Expanded synthetic benchmark for development and error analysis. Labels are constructed from the passage associated with each query; independent review is still recommended before making general claims.",
+  "documents": [
+    {
+      "id": "d1",
+      "text": "RAG combines retrieval with generation. A retriever finds relevant passages from a knowledge source and a language model uses those passages to formulate an answer grounded in evidence."
+    },
+    {
+      "id": "d2",
+      "text": "BM25 is a lexical ranking function based on term frequency, inverse document frequency, and document length normalization. It is a strong baseline for keyword search."
+    },
+    {
+      "id": "d3",
+      "text": "Dense retrieval encodes queries and documents into vectors. Similarity between vectors can retrieve semantically related text even when exact words differ."
+    },
+    {
+      "id": "d4",
+      "text": "Reciprocal Rank Fusion combines ranked result lists. Each document receives a score based on the reciprocal of a constant plus its rank in each list."
+    },
+    {
+      "id": "d5",
+      "text": "Recall at k measures the fraction of all known relevant documents found within the first k retrieved results."
+    },
+    {
+      "id": "d6",
+      "text": "Precision at k measures how many of the first k results are relevant, divided by k. It penalizes irrelevant documents in the result list."
+    },
+    {
+      "id": "d7",
+      "text": "Mean reciprocal rank averages the reciprocal of the rank of the first relevant result across a set of queries."
+    },
+    {
+      "id": "d8",
+      "text": "Normalized discounted cumulative gain evaluates ranking quality by giving more credit to relevant documents appearing near the top of a ranked list."
+    },
+    {
+      "id": "d9",
+      "text": "A reliable RAG evaluation dataset should include representative queries, document relevance labels, a held-out test set, and documented data provenance."
+    },
+    {
+      "id": "d10",
+      "text": "Latency benchmarking measures retrieval response time. Report measurement environment, warm-up behavior, and median or percentile latency instead of a single run."
+    },
+    {
+      "id": "d11",
+      "text": "An LLM-as-a-judge uses a language model to score answer relevance, groundedness, and correctness against supplied context and evaluation criteria."
+    },
+    {
+      "id": "d12",
+      "text": "Citation accuracy checks whether cited passages support claims in an answer. Groundedness checks whether generated claims are supported by retrieved context."
+    },
+    {
+      "id": "d13",
+      "text": "Retrieval selects passages from a document collection using a query. A retrieval system should return relevant evidence before answer generation."
+    },
+    {
+      "id": "d14",
+      "text": "Grounded generation uses retrieved passages as evidence. The language model should answer from that evidence and avoid unsupported claims."
+    },
+    {
+      "id": "d15",
+      "text": "BM25 ranks documents using term frequency, inverse document frequency, and document-length normalization. Its lexical scoring is effective when query terms overlap with relevant text."
+    },
+    {
+      "id": "d16",
+      "text": "Dense retrieval encodes queries and passages as numerical vectors. Vector similarity can match semantically related text even when exact keywords differ."
+    },
+    {
+      "id": "d17",
+      "text": "Hybrid retrieval combines complementary ranking signals, such as lexical BM25 scores and dense semantic rankings. Reciprocal Rank Fusion can combine ranked lists without requiring comparable raw scores."
+    },
+    {
+      "id": "d18",
+      "text": "Reciprocal Rank Fusion assigns each document a contribution based on one divided by a constant plus its rank. Contributions from multiple rankings are summed to produce a fused ordering."
+    },
+    {
+      "id": "d19",
+      "text": "Recall at k is the number of relevant documents retrieved in the first k results divided by the total number of known relevant documents for the query."
+    },
+    {
+      "id": "d20",
+      "text": "Precision at k is the number of relevant results among the first k results divided by k. It reflects how much of the returned result list is relevant."
+    },
+    {
+      "id": "d21",
+      "text": "Mean Reciprocal Rank averages the reciprocal of the rank of the first relevant result across queries. A relevant result at rank one contributes one, while lower ranks contribute less."
+    },
+    {
+      "id": "d22",
+      "text": "Normalized Discounted Cumulative Gain rewards relevant documents near the top of a ranked list. It normalizes discounted gain against an ideal ranking."
+    },
+    {
+      "id": "d23",
+      "text": "A retrieval benchmark needs query-level relevance judgments that identify which documents genuinely answer each query. Incorrect or incomplete labels can distort all ranking metrics."
+    },
+    {
+      "id": "d24",
+      "text": "A reliable evaluation dataset should cover representative topics and query styles, document its source, and keep development examples separate from held-out test examples."
+    },
+    {
+      "id": "d25",
+      "text": "Retrieval latency measures the time required to return results. A fair report should distinguish warm-up from steady-state runs and include median and tail latency."
+    },
+    {
+      "id": "d26",
+      "text": "An LLM-as-a-judge uses a language model and a scoring rubric to assess generated answers for relevance, correctness, and support from the supplied context."
+    },
+    {
+      "id": "d27",
+      "text": "Citation accuracy measures whether cited sources support the claims associated with them. Groundedness measures whether answer claims are supported by the provided evidence."
+    },
+    {
+      "id": "d28",
+      "text": "Document chunking divides long documents into smaller passages for indexing and retrieval. Chunk boundaries should preserve useful context and avoid splitting related content unnecessarily."
+    },
+    {
+      "id": "d29",
+      "text": "Text embeddings map text into vector representations. Similarity between embeddings can help identify passages with related meanings rather than relying only on shared words."
+    },
+    {
+      "id": "d30",
+      "text": "A reranker scores an initial candidate set using a more detailed relevance model and reorders the candidates. It can improve top-result ordering at the cost of extra computation."
+    },
+    {
+      "id": "d31",
+      "text": "A hallucination is a generated claim that is not supported by reliable evidence. Retrieval can provide context, but the system must still check whether each answer claim follows from that context."
+    },
+    {
+      "id": "d32",
+      "text": "Retrieval tests should include expected relevant document IDs and assert that ranking behavior remains correct after code changes. Regression tests help detect accidental quality degradation."
+    },
+    {
+      "id": "d33",
+      "text": "Reproducible benchmarks record the dataset version, relevance labels, configuration, software environment, and measurement procedure so results can be compared fairly."
+    },
+    {
+      "id": "d34",
+      "text": "The value k determines how many top-ranked results are evaluated. Metrics at different k values answer different questions about the breadth and quality of retrieved results."
+    },
+    {
+      "id": "d35",
+      "text": "Cosine similarity compares the angle between nonzero vectors. When embeddings are normalized, their dot product corresponds to cosine similarity."
+    },
+    {
+      "id": "d36",
+      "text": "Metadata filtering restricts the candidate document set using attributes such as category, date, or access permissions before or during retrieval."
+    },
+    {
+      "id": "d37",
+      "text": "A retrieval failure occurs when relevant evidence is missed or ranked too low. Error analysis should inspect the query, relevant labels, retrieved passages, and competing documents."
+    },
+    {
+      "id": "d38",
+      "text": "Lexical search is often efficient and interpretable for exact terminology, while dense search can handle semantic variation. The best choice depends on data, queries, quality requirements, and latency limits."
+    },
+    {
+      "id": "d39",
+      "text": "Production retrieval monitoring can track latency, errors, query distributions, result quality, and changes in document coverage. Offline benchmarks should be supplemented with real-world feedback."
+    },
+    {
+      "id": "d40",
+      "text": "A retrieval system should enforce document access controls so that search results do not expose information the requesting user is not authorized to read."
+    },
+    {
+      "id": "d41",
+      "text": "Duplicate or near-duplicate passages can crowd the top results and reduce result diversity. Deduplication can improve the usefulness of a result list when repeated content is common."
+    },
+    {
+      "id": "d42",
+      "text": "Evaluation leakage occurs when test queries or their answers influence model selection or tuning. A held-out test set helps estimate performance on unseen queries."
+    },
+    {
+      "id": "d43",
+      "text": "A similarity threshold can reject weak matches, but thresholds must be calibrated on representative examples. An overly strict threshold may discard useful evidence."
+    }
+  ],
+  "queries": [
+    {
+      "id": "q1",
+      "query": "What is retrieval augmented generation and how does it ground answers?",
+      "relevant_doc_ids": [
+        "d1"
+      ]
+    },
+    {
+      "id": "q2",
+      "query": "Explain BM25 term frequency and document length normalization.",
+      "relevant_doc_ids": [
+        "d2"
+      ]
+    },
+    {
+      "id": "q3",
+      "query": "How can semantic vector search find passages without exact keyword overlap?",
+      "relevant_doc_ids": [
+        "d3"
+      ]
+    },
+    {
+      "id": "q4",
+      "query": "How does reciprocal rank fusion combine retrieval rankings?",
+      "relevant_doc_ids": [
+        "d4"
+      ]
+    },
+    {
+      "id": "q5",
+      "query": "Define recall at five for search evaluation.",
+      "relevant_doc_ids": [
+        "d5"
+      ]
+    },
+    {
+      "id": "q6",
+      "query": "How do we measure the proportion of top results that are relevant?",
+      "relevant_doc_ids": [
+        "d6"
+      ]
+    },
+    {
+      "id": "q7",
+      "query": "Which metric rewards the position of the first relevant search result?",
+      "relevant_doc_ids": [
+        "d7"
+      ]
+    },
+    {
+      "id": "q8",
+      "query": "How can we evaluate whether relevant passages are ranked near the top?",
+      "relevant_doc_ids": [
+        "d8"
+      ]
+    },
+    {
+      "id": "q9",
+      "query": "What makes a reproducible retrieval evaluation dataset?",
+      "relevant_doc_ids": [
+        "d9"
+      ]
+    },
+    {
+      "id": "q10",
+      "query": "How should median and percentile response times be reported?",
+      "relevant_doc_ids": [
+        "d10"
+      ]
+    },
+    {
+      "id": "q11",
+      "query": "Can an LLM grade relevance and groundedness of a generated answer?",
+      "relevant_doc_ids": [
+        "d11",
+        "d12"
+      ]
+    },
+    {
+      "id": "q12",
+      "query": "How do you check if answer citations support its claims?",
+      "relevant_doc_ids": [
+        "d12"
+      ]
+    },
+    {
+      "id": "expanded_retrieval_1",
+      "query": "What does retrieval do before answer generation?",
+      "relevant_doc_ids": [
+        "d13"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_retrieval_2",
+      "query": "How does a RAG system find evidence for an answer?",
+      "relevant_doc_ids": [
+        "d13"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_generation_1",
+      "query": "How should a language model use retrieved evidence?",
+      "relevant_doc_ids": [
+        "d14"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_generation_2",
+      "query": "Why should generated answers avoid unsupported claims?",
+      "relevant_doc_ids": [
+        "d14"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_bm25_1",
+      "query": "Which factors determine a BM25 score?",
+      "relevant_doc_ids": [
+        "d15"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_bm25_2",
+      "query": "Why can BM25 work well for keyword search?",
+      "relevant_doc_ids": [
+        "d15"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_dense_1",
+      "query": "How can vector retrieval match different wording?",
+      "relevant_doc_ids": [
+        "d16"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_dense_2",
+      "query": "What representations are compared in dense retrieval?",
+      "relevant_doc_ids": [
+        "d16"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_hybrid_1",
+      "query": "Why combine lexical and semantic retrieval?",
+      "relevant_doc_ids": [
+        "d17"
+      ],
+      "query_style": "comparison"
+    },
+    {
+      "id": "expanded_hybrid_2",
+      "query": "How does Reciprocal Rank Fusion merge rankings?",
+      "relevant_doc_ids": [
+        "d17"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_rrf_1",
+      "query": "What score contribution does RRF assign to a ranked document?",
+      "relevant_doc_ids": [
+        "d18"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_rrf_2",
+      "query": "Why can RRF combine systems with different score scales?",
+      "relevant_doc_ids": [
+        "d18"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_recall_1",
+      "query": "How is Recall@5 calculated?",
+      "relevant_doc_ids": [
+        "d19"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_recall_2",
+      "query": "Which metric measures the fraction of relevant documents found?",
+      "relevant_doc_ids": [
+        "d19"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_precision_1",
+      "query": "How do you calculate Precision@5?",
+      "relevant_doc_ids": [
+        "d20"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_precision_2",
+      "query": "Which metric penalizes irrelevant items in the top results?",
+      "relevant_doc_ids": [
+        "d20"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_mrr_1",
+      "query": "What does MRR measure?",
+      "relevant_doc_ids": [
+        "d21"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_mrr_2",
+      "query": "Why does finding the first relevant passage at rank one improve MRR?",
+      "relevant_doc_ids": [
+        "d21"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_ndcg_1",
+      "query": "What ranking behavior does NDCG reward?",
+      "relevant_doc_ids": [
+        "d22"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_ndcg_2",
+      "query": "Why does a relevant document at rank one receive more gain than one at rank five?",
+      "relevant_doc_ids": [
+        "d22"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_labels_1",
+      "query": "Why must relevance labels be audited?",
+      "relevant_doc_ids": [
+        "d23"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_labels_2",
+      "query": "How can incorrect ground truth affect retrieval evaluation?",
+      "relevant_doc_ids": [
+        "d23"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_dataset_1",
+      "query": "What makes a retrieval evaluation dataset reliable?",
+      "relevant_doc_ids": [
+        "d24"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_dataset_2",
+      "query": "Why should test queries be held out during development?",
+      "relevant_doc_ids": [
+        "d24"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_latency_1",
+      "query": "Which latency statistics should a benchmark report?",
+      "relevant_doc_ids": [
+        "d25"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_latency_2",
+      "query": "Why separate model warm-up from steady-state timing?",
+      "relevant_doc_ids": [
+        "d25"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_judge_1",
+      "query": "What does an LLM judge evaluate?",
+      "relevant_doc_ids": [
+        "d26"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_judge_2",
+      "query": "How can a language model score answer quality?",
+      "relevant_doc_ids": [
+        "d26"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_citations_1",
+      "query": "What is the difference between citation accuracy and groundedness?",
+      "relevant_doc_ids": [
+        "d27"
+      ],
+      "query_style": "comparison"
+    },
+    {
+      "id": "expanded_citations_2",
+      "query": "How do you check whether a citation supports a claim?",
+      "relevant_doc_ids": [
+        "d27"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_chunking_1",
+      "query": "Why does chunking affect retrieval quality?",
+      "relevant_doc_ids": [
+        "d28"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_chunking_2",
+      "query": "How should a document be divided for retrieval?",
+      "relevant_doc_ids": [
+        "d28"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_embeddings_1",
+      "query": "What is a text embedding?",
+      "relevant_doc_ids": [
+        "d29"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_embeddings_2",
+      "query": "How can embeddings help semantic search?",
+      "relevant_doc_ids": [
+        "d29"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_reranking_1",
+      "query": "What does a reranker do after initial retrieval?",
+      "relevant_doc_ids": [
+        "d30"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_reranking_2",
+      "query": "What is the trade-off of adding a reranking stage?",
+      "relevant_doc_ids": [
+        "d30"
+      ],
+      "query_style": "comparison"
+    },
+    {
+      "id": "expanded_hallucination_1",
+      "query": "What is a hallucination in a RAG answer?",
+      "relevant_doc_ids": [
+        "d31"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_hallucination_2",
+      "query": "Does retrieving context automatically guarantee grounded answers?",
+      "relevant_doc_ids": [
+        "d31"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_testing_1",
+      "query": "How can regression tests protect retrieval quality?",
+      "relevant_doc_ids": [
+        "d32"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_testing_2",
+      "query": "What should a retrieval test assert?",
+      "relevant_doc_ids": [
+        "d32"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_reproducibility_1",
+      "query": "What information makes benchmark results reproducible?",
+      "relevant_doc_ids": [
+        "d33"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_reproducibility_2",
+      "query": "Why record the retrieval configuration and dataset version?",
+      "relevant_doc_ids": [
+        "d33"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_topk_1",
+      "query": "What does k mean in Recall@k?",
+      "relevant_doc_ids": [
+        "d34"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_topk_2",
+      "query": "Why can Recall@5 differ from Recall@10?",
+      "relevant_doc_ids": [
+        "d34"
+      ],
+      "query_style": "comparison"
+    },
+    {
+      "id": "expanded_similarity_1",
+      "query": "What does cosine similarity compare?",
+      "relevant_doc_ids": [
+        "d35"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_similarity_2",
+      "query": "What is the relationship between normalized vectors and cosine similarity?",
+      "relevant_doc_ids": [
+        "d35"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_filtering_1",
+      "query": "What is metadata filtering in search?",
+      "relevant_doc_ids": [
+        "d36"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_filtering_2",
+      "query": "How can document attributes constrain retrieval candidates?",
+      "relevant_doc_ids": [
+        "d36"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_failure_1",
+      "query": "How should a retrieval failure be investigated?",
+      "relevant_doc_ids": [
+        "d37"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_failure_2",
+      "query": "What evidence helps explain a bad ranking?",
+      "relevant_doc_ids": [
+        "d37"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_tradeoffs_1",
+      "query": "When might dense retrieval help more than lexical search?",
+      "relevant_doc_ids": [
+        "d38"
+      ],
+      "query_style": "comparison"
+    },
+    {
+      "id": "expanded_tradeoffs_2",
+      "query": "How should a team choose between BM25 and dense retrieval?",
+      "relevant_doc_ids": [
+        "d38"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_monitoring_1",
+      "query": "Which signals are useful for monitoring production retrieval?",
+      "relevant_doc_ids": [
+        "d39"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_monitoring_2",
+      "query": "Why are offline benchmarks not enough on their own?",
+      "relevant_doc_ids": [
+        "d39"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_security_1",
+      "query": "Why should retrieval enforce access controls?",
+      "relevant_doc_ids": [
+        "d40"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_security_2",
+      "query": "What is a risk of ignoring permissions during search?",
+      "relevant_doc_ids": [
+        "d40"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_deduplication_1",
+      "query": "How can duplicate passages hurt search results?",
+      "relevant_doc_ids": [
+        "d41"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_deduplication_2",
+      "query": "Why might a retrieval system deduplicate results?",
+      "relevant_doc_ids": [
+        "d41"
+      ],
+      "query_style": "paraphrase"
+    },
+    {
+      "id": "expanded_evaluationleakage_1",
+      "query": "What is evaluation leakage?",
+      "relevant_doc_ids": [
+        "d42"
+      ],
+      "query_style": "direct"
+    },
+    {
+      "id": "expanded_evaluationleakage_2",
+      "query": "Why should test answers not guide repeated tuning?",
+      "relevant_doc_ids": [
+        "d42"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_thresholds_1",
+      "query": "What is a risk of setting a retrieval threshold too high?",
+      "relevant_doc_ids": [
+        "d43"
+      ],
+      "query_style": "scenario"
+    },
+    {
+      "id": "expanded_thresholds_2",
+      "query": "How should a similarity threshold be selected?",
+      "relevant_doc_ids": [
+        "d43"
+      ],
+      "query_style": "paraphrase"
+    }
+  ]
+}
